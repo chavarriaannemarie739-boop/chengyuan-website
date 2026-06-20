@@ -160,7 +160,8 @@
   <script src="js/main.js"></script>
   <script>
     // ---- Populate contact info from CMS ----
-    (function populateContactInfo() {
+    (async function populateContactInfo() {
+      await CMS.loadData();
       const company = CMS.get('company');
       if (!company) return;
 
@@ -276,25 +277,36 @@
           return;
         }
 
-        // Simulate submission (replace with real API call in production)
+        // Call real API backend
         var submitBtn = form.querySelector('button[type="submit"]');
         var originalText = submitBtn.textContent;
         submitBtn.textContent = '提交中...';
         submitBtn.disabled = true;
         submitBtn.style.opacity = '0.7';
 
-        setTimeout(function() {
-          showToast('留言提交成功！我们将尽快与您联系。', 'success');
-          form.reset();
+        (async () => {
+          const result = await window.CMS.submitMessage({
+            name: name.value.trim(),
+            phone: phone.value.trim(),
+            email: emailField.value.trim(),
+            message: message.value.trim()
+          });
+
+          if (result.success) {
+            showToast(result.message || '留言提交成功！我们将尽快与您联系。', 'success');
+            form.reset();
+            // Reset all border colors
+            form.querySelectorAll('.form-input').forEach(function(input) {
+              input.style.borderColor = '';
+            });
+          } else {
+            showToast(result.message || '留言提交失败，请稍后重试', 'error');
+          }
+
           submitBtn.textContent = originalText;
           submitBtn.disabled = false;
           submitBtn.style.opacity = '';
-
-          // Reset all border colors
-          form.querySelectorAll('.form-input').forEach(function(input) {
-            input.style.borderColor = '';
-          });
-        }, 1200);
+        })();
       });
     })();
 

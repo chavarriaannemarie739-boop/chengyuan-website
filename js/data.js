@@ -1,7 +1,6 @@
 /**
- * 诚远汽车零部件 — CMS 数据管理层
- * 所有页面内容从此处读取，后台管理面板写入此处
- * 使用 localStorage 持久化，可后续替换为 API
+ * 诚远汽车零部件 — CMS 数据管理层 (API 联调升级版)
+ * 所有页面内容从云端 API 读取，后台管理面板安全修改
  */
 
 const CMS_STORAGE_KEY = 'chengyuan_cms_data';
@@ -10,8 +9,6 @@ const CMS_STORAGE_KEY = 'chengyuan_cms_data';
 //  默认数据（占位符，可通过后台修改）
 // ============================================================
 const DEFAULT_DATA = {
-
-  // ---- 企业基本信息 ----
   company: {
     name: '诚远汽车零部件',
     fullName: '聊城市茌平区诚远汽车零部件制造有限公司',
@@ -19,7 +16,7 @@ const DEFAULT_DATA = {
     slogan: '精工品质 · 驱动未来',
     description: '专注汽车散热器研发、生产与销售，以精湛工艺和卓越品质，为全球客户提供可靠的汽车热管理解决方案。',
     descriptionLong: '聊城市茌平区诚远汽车零部件制造有限公司成立于茌平区，是一家集研发、生产、销售于一体的专业汽车散热器制造企业。公司拥有先进的生产设备和检测仪器，建立了完善的质量管理体系，产品广泛应用于乘用车、商用车、工程机械等领域。我们始终秉承"品质至上、客户为先"的经营理念，不断推动技术创新，为客户提供高性能、高可靠性的散热解决方案。',
-    logo: '', // 用户上传后替换
+    logo: '', 
     phone: '0635-XXXXXXX',
     mobile: '138-XXXX-XXXX',
     email: 'info@chengyuanauto.com',
@@ -31,7 +28,6 @@ const DEFAULT_DATA = {
     foundedYear: '2015',
   },
 
-  // ---- 首页 Banner ----
   banners: [
     {
       id: 'banner-1',
@@ -43,7 +39,6 @@ const DEFAULT_DATA = {
     }
   ],
 
-  // ---- 核心优势 ----
   advantages: [
     {
       id: 'adv-1',
@@ -71,7 +66,6 @@ const DEFAULT_DATA = {
     }
   ],
 
-  // ---- 关键数据 ----
   stats: [
     { number: '10', unit: '+', label: '年行业经验' },
     { number: '200', unit: '+', label: '产品型号' },
@@ -79,7 +73,6 @@ const DEFAULT_DATA = {
     { number: '99.5', unit: '%', label: '客户满意度' }
   ],
 
-  // ---- 产品列表 ----
   products: [
     {
       id: 'prod-1',
@@ -94,7 +87,7 @@ const DEFAULT_DATA = {
       id: 'prod-2',
       name: '铜制汽车散热器',
       category: '商用车散热器',
-      description: '传统铜制工艺，导热性能优异，适用于重型商用车和工程机械。',
+      description: '传统铜制工艺，导热性能优异，适用于重型商用车 and 工程机械。',
       features: ['纯铜材质', '超强导热', '经久耐用', '大排量适用'],
       image: '',
       isHot: false,
@@ -137,10 +130,8 @@ const DEFAULT_DATA = {
     }
   ],
 
-  // ---- 产品分类 ----
   productCategories: ['全部', '乘用车散热器', '商用车散热器', '工程机械散热器', '配套散热件'],
 
-  // ---- 发展历程 ----
   milestones: [
     { year: '2015', title: '公司成立', description: '聊城市茌平区诚远汽车零部件制造有限公司正式成立，投产第一批汽车散热器产品。' },
     { year: '2017', title: '产能扩大', description: '引进自动化生产线，年产能突破10万台，产品线覆盖乘用车和商用车领域。' },
@@ -150,14 +141,12 @@ const DEFAULT_DATA = {
     { year: '2025', title: '智能制造', description: '推进数字化转型，引入智能制造管理系统，进一步提升生产效率和产品质量。' }
   ],
 
-  // ---- 企业文化 / 核心价值观 ----
   values: [
     { icon: '🎯', title: '使命', description: '为全球汽车产业提供高品质、高性能的热管理解决方案。' },
     { icon: '👁️', title: '愿景', description: '成为国内领先、国际知名的汽车散热系统制造商。' },
     { icon: '💎', title: '价值观', description: '品质为本、创新驱动、客户至上、合作共赢。' }
   ],
 
-  // ---- 新闻动态 ----
   news: [
     {
       id: 'news-1',
@@ -182,7 +171,6 @@ const DEFAULT_DATA = {
     }
   ],
 
-  // ---- 合作伙伴 ----
   partners: [
     { name: '合作伙伴 A' },
     { name: '合作伙伴 B' },
@@ -193,37 +181,69 @@ const DEFAULT_DATA = {
 };
 
 // ============================================================
-//  CMS 核心操作
+//  CMS 核心操作 (与后端 API 交互)
 // ============================================================
 const CMS = {
+  _cacheData: null,
+
   /**
-   * 获取所有数据
+   * 异步加载所有数据
    */
-  getData() {
+  async loadData() {
+    if (this._cacheData) {
+      return this._cacheData;
+    }
     try {
-      const stored = localStorage.getItem(CMS_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        // Deep merge with defaults to ensure new fields are available
-        return this._deepMerge(DEFAULT_DATA, parsed);
+      const response = await fetch('api.php?action=get');
+      if (response.ok) {
+        const data = await response.json();
+        // 如果后端返回空对象，深度合并默认数据
+        this._cacheData = this._deepMerge(DEFAULT_DATA, data);
+        return this._cacheData;
       }
     } catch (e) {
-      console.warn('CMS: Failed to read localStorage, using defaults', e);
+      console.warn('CMS: Failed to fetch API, using local memory/defaults', e);
     }
-    return JSON.parse(JSON.stringify(DEFAULT_DATA));
+    // 兜底返回默认数据
+    this._cacheData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    return this._cacheData;
   },
 
   /**
-   * 保存所有数据
+   * 获取当前缓存的数据
    */
-  saveData(data) {
+  getData() {
+    if (!this._cacheData) {
+      return JSON.parse(JSON.stringify(DEFAULT_DATA));
+    }
+    return this._cacheData;
+  },
+
+  /**
+   * 异步保存所有数据
+   */
+  async saveData(data) {
     try {
-      localStorage.setItem(CMS_STORAGE_KEY, JSON.stringify(data));
-      return true;
+      const token = localStorage.getItem('chengyuan_admin_token');
+      const response = await fetch('api.php?action=save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data)
+      });
+      if (response.ok) {
+        this._cacheData = data;
+        return true;
+      }
+      if (response.status === 401) {
+        this.handleSessionExpiry();
+      }
     } catch (e) {
       console.error('CMS: Failed to save data', e);
-      return false;
     }
+    return false;
   },
 
   /**
@@ -235,23 +255,132 @@ const CMS = {
   },
 
   /**
-   * 更新指定模块数据
+   * 异步更新指定模块数据并保存
    */
-  set(key, value) {
-    const data = this.getData();
+  async set(key, value) {
+    const data = { ...this.getData() };
     data[key] = value;
-    return this.saveData(data);
+    return await this.saveData(data);
   },
 
   /**
-   * 重置为默认数据
+   * 清除登录状态
    */
-  reset() {
-    localStorage.removeItem(CMS_STORAGE_KEY);
+  handleSessionExpiry() {
+    localStorage.removeItem('chengyuan_admin_token');
+    if (window.location.pathname.includes('admin.html')) {
+      window.showToast('登录已过期，请重新登录', 'error');
+      setTimeout(() => location.reload(), 1500);
+    }
   },
 
   /**
-   * 导出数据为 JSON
+   * 管理员登录
+   */
+  async login(username, password) {
+    try {
+      const response = await fetch('api.php?action=login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const result = await response.json();
+      if (response.ok && result.token) {
+        localStorage.setItem('chengyuan_admin_token', result.token);
+        return { success: true };
+      }
+      return { success: false, message: result.message || '登录失败' };
+    } catch (e) {
+      return { success: false, message: '无法连接到服务器' };
+    }
+  },
+
+  /**
+   * 上传图片文件至服务器
+   */
+  async uploadImage(file) {
+    if (!file) throw new Error('请选择图片文件');
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const token = localStorage.getItem('chengyuan_admin_token');
+    const response = await fetch('api.php?action=upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+    
+    const result = await response.json();
+    if (response.ok && result.url) {
+      return result.url; // 返回如 uploads/xxx.jpg 的地址
+    } else {
+      throw new Error(result.message || '图片上传失败');
+    }
+  },
+
+  /**
+   * 提交留言
+   */
+  async submitMessage(msgData) {
+    try {
+      const response = await fetch('api.php?action=submit_message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(msgData)
+      });
+      const result = await response.json();
+      return { success: response.ok, message: result.message };
+    } catch (e) {
+      return { success: false, message: '留言提交失败，请稍后重试' };
+    }
+  },
+
+  /**
+   * 获取留言板列表（后台使用）
+   */
+  async getMessages() {
+    try {
+      const token = localStorage.getItem('chengyuan_admin_token');
+      const response = await fetch('api.php?action=get_messages', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        return await response.json();
+      }
+      if (response.status === 401) this.handleSessionExpiry();
+    } catch (e) {
+      console.error('Failed to get messages', e);
+    }
+    return [];
+  },
+
+  /**
+   * 删除指定留言
+   */
+  async deleteMessage(id) {
+    try {
+      const token = localStorage.getItem('chengyuan_admin_token');
+      const response = await fetch('api.php?action=delete_message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ id })
+      });
+      if (response.ok) return true;
+      if (response.status === 401) this.handleSessionExpiry();
+    } catch (e) {
+      console.error('Failed to delete message', e);
+    }
+    return false;
+  },
+
+  /**
+   * 备份导出
    */
   exportJSON() {
     const data = this.getData();
@@ -264,17 +393,18 @@ const CMS = {
     URL.revokeObjectURL(url);
   },
 
-  /**
-   * 从 JSON 导入数据
-   */
-  importJSON(file) {
+  async importJSON(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         try {
           const data = JSON.parse(e.target.result);
-          this.saveData(data);
-          resolve(data);
+          const success = await this.saveData(data);
+          if (success) {
+            resolve(data);
+          } else {
+            reject(new Error('云端保存失败'));
+          }
         } catch (err) {
           reject(err);
         }
@@ -284,26 +414,8 @@ const CMS = {
     });
   },
 
-  /**
-   * 图片上传（转 Base64 存储）
-   * 生产环境应替换为服务端上传
-   */
-  uploadImage(file) {
-    return new Promise((resolve, reject) => {
-      if (!file || !file.type.startsWith('image/')) {
-        reject(new Error('请选择图片文件'));
-        return;
-      }
-      // Limit file size to 2MB for localStorage
-      if (file.size > 2 * 1024 * 1024) {
-        reject(new Error('图片大小不能超过 2MB'));
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+  reset() {
+    this.saveData({});
   },
 
   /**

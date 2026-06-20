@@ -327,8 +327,14 @@ function showToast(message, type = 'success') {
 // ============================================================
 //  Page Init
 // ============================================================
-function initPage() {
+async function initPage() {
   renderPageLoader();
+
+  // 确保全局数据已成功拉取
+  if (window.CMS && typeof window.CMS.loadData === 'function') {
+    await window.CMS.loadData();
+  }
+
   renderHeader();
   renderFooter();
   renderScrollTop();

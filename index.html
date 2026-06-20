@@ -141,7 +141,8 @@
   <script src="js/data.js"></script>
   <script src="js/main.js"></script>
   <script>
-    (function () {
+    (async function () {
+      await CMS.loadData();
       const data = window.CMS.getData();
 
       // --- 1. Hero Section ---

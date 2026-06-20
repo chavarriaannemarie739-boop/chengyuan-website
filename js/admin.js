@@ -1,13 +1,49 @@
 /**
- * 诚远汽车零部件 — 网站后台管理 JavaScript
+ * 诚远汽车零部件 — 网站后台管理 JavaScript (API 联动版)
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Ensure CMS is loaded
   if (!window.CMS) {
     console.error('CMS data layer (data.js) not loaded!');
     return;
   }
+
+  // DOM Elements for Login
+  const loginOverlay = document.getElementById('login-overlay');
+  const loginForm = document.getElementById('login-form');
+  const loginUsername = document.getElementById('login-username');
+  const loginPassword = document.getElementById('login-password');
+
+  // Verify Login Status
+  function checkLogin() {
+    const token = localStorage.getItem('chengyuan_admin_token');
+    if (token) {
+      loginOverlay.classList.add('login-overlay--hidden');
+      return true;
+    } else {
+      loginOverlay.classList.remove('login-overlay--hidden');
+      return false;
+    }
+  }
+
+  // Handle Login Submit
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value;
+    
+    const result = await window.CMS.login(username, password);
+    if (result.success) {
+      window.showToast('登录成功，欢迎使用后台系统');
+      checkLogin();
+      // Load data and refresh
+      await window.CMS.loadData();
+      renderSection(currentSection);
+    } else {
+      window.showToast(result.message, 'error');
+    }
+  });
 
   // State Management
   let currentSection = 'dashboard';
@@ -25,12 +61,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalCancel = document.getElementById('modal-cancel');
   const modalSubmit = document.getElementById('modal-submit');
 
+  // Load Initial Data
+  await window.CMS.loadData();
+  
+  if (checkLogin()) {
+    renderSection('dashboard');
+  }
+
   // ============================================================
   //  UI Event Listeners
   // ============================================================
   navItems.forEach(item => {
     item.addEventListener('click', (e) => {
       e.preventDefault();
+      if (!checkLogin()) return;
+
       navItems.forEach(nav => nav.classList.remove('sidebar__nav-item--active'));
       item.classList.add('sidebar__nav-item--active');
 
@@ -61,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
   //  Section Renderers
   // ============================================================
   function renderSection(section) {
+    if (!checkLogin()) return;
     adminView.innerHTML = '';
     const data = window.CMS.getData();
 
@@ -85,6 +131,9 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
       case 'milestones':
         renderMilestones(data);
+        break;
+      case 'messages':
+        renderMessages();
         break;
       case 'settings':
         renderSettings();
@@ -119,10 +168,10 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="dashboard-card">
           <div class="dashboard-card__info">
-            <span class="dashboard-card__label">合作品牌</span>
-            <span class="dashboard-card__value">${data.partners.length} 家</span>
+            <span class="dashboard-card__label">客户留言</span>
+            <span class="dashboard-card__value" id="dashboard-msg-count">加载中...</span>
           </div>
-          <div class="dashboard-card__icon">🤝</div>
+          <div class="dashboard-card__icon">💬</div>
         </div>
       </div>
 
@@ -136,10 +185,16 @@ document.addEventListener('DOMContentLoaded', () => {
           <p style="margin-bottom: 15px;"><strong>联系电话：</strong>${data.company.mobile || data.company.phone}</p>
           <p style="margin-bottom: 15px;"><strong>联系邮箱：</strong>${data.company.email}</p>
           <p style="margin-bottom: 15px;"><strong>ICP备案号：</strong>${data.company.icp}</p>
-          <p style="margin-bottom: 0;"><strong>系统说明：</strong>修改内容后，前台网页会实时同步更新。如果第一次运行，可以前往“系统设置”重置为出厂初始数据体验系统。</p>
+          <p style="margin-bottom: 0;"><strong>系统说明：</strong>修改内容后，前台网页会实时同步更新。您可以退出登录，也可以前往系统设置备份或重置数据。</p>
         </div>
       </div>
     `;
+
+    // Load message count asynchronously
+    window.CMS.getMessages().then(msgs => {
+      const countEl = document.getElementById('dashboard-msg-count');
+      if (countEl) countEl.textContent = msgs.length + ' 条';
+    });
   }
 
   // ---- Section: Company Info ----
@@ -177,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   <button type="button" class="btn btn-outline btn-sm">上传图片</button>
                   <input type="file" id="logo-file" accept="image/*">
                 </div>
-                <span class="text-gray" style="font-size:12px;">建议透明背景PNG，大小不超过 1MB</span>
+                <span class="text-gray" style="font-size:12px;">建议透明背景PNG，大小不超过 2MB</span>
               </div>
             </div>
             <div class="form-group form-group--full">
@@ -227,15 +282,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Logo upload handler
     const logoFile = document.getElementById('logo-file');
     const logoPreview = document.getElementById('logo-preview');
-    let logoBase64 = data.company.logo;
+    let logoUrl = data.company.logo;
 
     logoFile.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (file) {
         try {
-          logoBase64 = await window.CMS.uploadImage(file);
-          logoPreview.innerHTML = `<img src="${logoBase64}">`;
-          window.showToast('Logo 读取成功，提交表单后生效');
+          logoUrl = await window.CMS.uploadImage(file);
+          logoPreview.innerHTML = `<img src="${logoUrl}">`;
+          window.showToast('Logo 已上传，提交表单后生效');
         } catch (err) {
           window.showToast(err.message, 'error');
         }
@@ -244,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Form submit handler
     const form = document.getElementById('company-form');
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = new FormData(form);
       const updatedCompany = { ...data.company };
@@ -252,9 +307,10 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.forEach((value, key) => {
         updatedCompany[key] = value;
       });
-      updatedCompany.logo = logoBase64;
+      updatedCompany.logo = logoUrl;
 
-      if (window.CMS.set('company', updatedCompany)) {
+      const success = await window.CMS.set('company', updatedCompany);
+      if (success) {
         window.showToast('公司基本信息已更新');
         renderSection('company');
       } else {
@@ -326,10 +382,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     adminView.querySelectorAll('.btn-icon--delete').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         if (confirm('确定要删除这款产品吗？此操作无法撤销。')) {
           const products = data.products.filter(p => p.id !== btn.dataset.id);
-          if (window.CMS.set('products', products)) {
+          const success = await window.CMS.set('products', products);
+          if (success) {
             window.showToast('产品已成功删除');
             renderSection('products');
           }
@@ -381,7 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">产品特性 (用英文逗号逗开，例如: 轻量化设计,高耐腐蚀,导热极佳)</label>
+          <label class="form-label">产品特性 (用英文逗号隔开，例如: 轻量化设计,高耐腐蚀,导热极佳)</label>
           <input type="text" class="form-input" name="features" value="${(prod.features || []).join(',')}">
         </div>
         <div class="form-group">
@@ -400,15 +457,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle Image Upload inside modal
     const prodFile = document.getElementById('prod-file');
     const prodPreview = document.getElementById('prod-preview');
-    let prodImageBase64 = prod.image;
+    let prodImageUrl = prod.image;
 
     prodFile.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (file) {
         try {
-          prodImageBase64 = await window.CMS.uploadImage(file);
-          prodPreview.innerHTML = `<img src="${prodImageBase64}">`;
-          window.showToast('产品图片已读取');
+          prodImageUrl = await window.CMS.uploadImage(file);
+          prodPreview.innerHTML = `<img src="${prodImageUrl}">`;
+          window.showToast('产品图片上传成功');
         } catch (err) {
           window.showToast(err.message, 'error');
         }
@@ -419,18 +476,20 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.classList.add('admin-modal--active');
 
     // Handle Submit
-    modalSubmit.onclick = () => {
+    modalSubmit.onclick = async () => {
       if (!modalForm.reportValidity()) return;
 
       const formData = new FormData(modalForm);
+      const isHotChecked = modalForm.querySelector('input[name="isHot"]').checked;
+
       const newProduct = {
         id: isEdit ? id : 'prod-' + Date.now(),
         name: formData.get('name'),
         category: formData.get('category'),
         description: formData.get('description'),
         features: formData.get('features').split(',').map(f => f.trim()).filter(Boolean),
-        isHot: formData.get('isHot') === 'true',
-        image: prodImageBase64
+        isHot: isHotChecked,
+        image: prodImageUrl
       };
 
       let products = [...data.products];
@@ -440,7 +499,8 @@ document.addEventListener('DOMContentLoaded', () => {
         products.unshift(newProduct);
       }
 
-      if (window.CMS.set('products', products)) {
+      const success = await window.CMS.set('products', products);
+      if (success) {
         window.showToast(isEdit ? '产品编辑成功' : '产品添加成功');
         closeModal();
         renderSection('products');
@@ -509,10 +569,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     adminView.querySelectorAll('.btn-icon--delete').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         if (confirm('确定要删除这篇新闻吗？')) {
           const news = data.news.filter(n => n.id !== btn.dataset.id);
-          if (window.CMS.set('news', news)) {
+          const success = await window.CMS.set('news', news);
+          if (success) {
             window.showToast('新闻已成功删除');
             renderSection('news');
           }
@@ -564,15 +625,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const newsFile = document.getElementById('news-file');
     const newsPreview = document.getElementById('news-preview');
-    let newsImageBase64 = item.image;
+    let newsImageUrl = item.image;
 
     newsFile.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (file) {
         try {
-          newsImageBase64 = await window.CMS.uploadImage(file);
-          newsPreview.innerHTML = `<img src="${newsImageBase64}">`;
-          window.showToast('新闻配图已就绪');
+          newsImageUrl = await window.CMS.uploadImage(file);
+          newsPreview.innerHTML = `<img src="${newsImageUrl}">`;
+          window.showToast('新闻配图上传成功');
         } catch (err) {
           window.showToast(err.message, 'error');
         }
@@ -581,7 +642,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     modal.classList.add('admin-modal--active');
 
-    modalSubmit.onclick = () => {
+    modalSubmit.onclick = async () => {
       if (!modalForm.reportValidity()) return;
 
       const formData = new FormData(modalForm);
@@ -590,7 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
         title: formData.get('title'),
         date: formData.get('date'),
         summary: formData.get('summary'),
-        image: newsImageBase64
+        image: newsImageUrl
       };
 
       let news = [...data.news];
@@ -600,7 +661,8 @@ document.addEventListener('DOMContentLoaded', () => {
         news.unshift(newNews);
       }
 
-      if (window.CMS.set('news', news)) {
+      const success = await window.CMS.set('news', news);
+      if (success) {
         window.showToast(isEdit ? '新闻编辑已保存' : '新闻发布成功');
         closeModal();
         renderSection('news');
@@ -643,7 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
 
-    document.getElementById('btn-save-adv').addEventListener('click', () => {
+    document.getElementById('btn-save-adv').addEventListener('click', async () => {
       const advCards = adminView.querySelectorAll('.admin-card');
       const updatedAdvantages = [];
 
@@ -656,7 +718,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       });
 
-      if (window.CMS.set('advantages', updatedAdvantages)) {
+      const success = await window.CMS.set('advantages', updatedAdvantages);
+      if (success) {
         window.showToast('核心优势设置已成功更新');
       } else {
         window.showToast('保存失败', 'error');
@@ -697,7 +760,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
 
-    document.getElementById('btn-save-stats').addEventListener('click', () => {
+    document.getElementById('btn-save-stats').addEventListener('click', async () => {
       const statCards = adminView.querySelectorAll('.admin-card');
       const updatedStats = [];
 
@@ -709,7 +772,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       });
 
-      if (window.CMS.set('stats', updatedStats)) {
+      const success = await window.CMS.set('stats', updatedStats);
+      if (success) {
         window.showToast('指标配置更新成功');
       } else {
         window.showToast('保存失败', 'error');
@@ -770,10 +834,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     adminView.querySelectorAll('.btn-icon--delete').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         if (confirm('确认要删除这条里程碑吗？')) {
           const milestones = data.milestones.filter(m => m.year !== btn.dataset.id);
-          if (window.CMS.set('milestones', milestones)) {
+          const success = await window.CMS.set('milestones', milestones);
+          if (success) {
             window.showToast('里程碑已成功删除');
             renderSection('milestones');
           }
@@ -813,7 +878,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     modal.classList.add('admin-modal--active');
 
-    modalSubmit.onclick = () => {
+    modalSubmit.onclick = async () => {
       if (!modalForm.reportValidity()) return;
 
       const formData = new FormData(modalForm);
@@ -828,17 +893,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (isEdit) {
         milestones = milestones.map(m => m.year === yearId ? newMilestone : m);
       } else {
-        // Prevent duplicate years
         if (milestones.some(m => m.year === newMilestone.year)) {
           window.showToast(`已存在 ${newMilestone.year} 年的里程碑，请直接编辑它或删除后再试`, 'error');
           return;
         }
         milestones.push(newMilestone);
-        // Sort chronologically
         milestones.sort((a, b) => parseInt(a.year) - parseInt(b.year));
       }
 
-      if (window.CMS.set('milestones', milestones)) {
+      const success = await window.CMS.set('milestones', milestones);
+      if (success) {
         window.showToast(isEdit ? '里程碑修改成功' : '里程碑创建成功');
         closeModal();
         renderSection('milestones');
@@ -846,6 +910,66 @@ document.addEventListener('DOMContentLoaded', () => {
         window.showToast('保存失败', 'error');
       }
     };
+  }
+
+  // ---- Section: Customer Feedback Messages ----
+  async function renderMessages() {
+    const msgs = await window.CMS.getMessages();
+    const listHTML = msgs.map(msg => `
+      <tr>
+        <td><strong>${msg.name}</strong></td>
+        <td><a href="tel:${msg.phone}" style="color: var(--color-primary); text-decoration: underline;">${msg.phone}</a></td>
+        <td>${msg.email || '<span class="text-gray">-</span>'}</td>
+        <td style="word-break: break-all; max-width: 300px;">${msg.message}</td>
+        <td><span class="badge badge--gray">${msg.time}</span></td>
+        <td>
+          <div class="action-buttons">
+            <button class="btn-icon btn-icon--delete" data-id="${msg.id}" title="删除留言">🗑️</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+
+    adminView.innerHTML = `
+      <div class="admin-card">
+        <div class="admin-card__header">
+          <h3 class="admin-card__title">客户留言反馈管理</h3>
+        </div>
+        <div class="admin-card__body">
+          <div class="admin-table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th width="120">姓名</th>
+                  <th width="150">联系电话</th>
+                  <th width="180">电子邮箱</th>
+                  <th>留言内容</th>
+                  <th width="180">提交日期</th>
+                  <th width="80">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${listHTML || '<tr><td colspan="6" class="text-center" style="padding: 40px; color: #999;">当前没有新留言</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+
+    adminView.querySelectorAll('.btn-icon--delete').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (confirm('确认删除这条客户留言吗？此操作无法撤销。')) {
+          const success = await window.CMS.deleteMessage(btn.dataset.id);
+          if (success) {
+            window.showToast('留言已删除');
+            renderMessages();
+          } else {
+            window.showToast('删除失败', 'error');
+          }
+        }
+      });
+    });
   }
 
   // ---- Section: Settings & Reset ----
@@ -870,10 +994,10 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
 
         <div class="settings-card" style="border-color: rgba(239, 68, 68, 0.2);">
-          <div class="settings-card__icon">🔄</div>
-          <h4 class="settings-card__title" style="color:var(--color-error)">重置出厂设置</h4>
-          <p class="settings-card__desc">清空所有自定义修改，还原为诚远汽车零部件公司最初的默认文案和图片内容。</p>
-          <button class="btn btn-outline btn-sm btn-block" id="btn-reset" style="color:var(--color-error); border-color:var(--color-error)">确认重置数据</button>
+          <div class="settings-card__icon">🚪</div>
+          <h4 class="settings-card__title" style="color:var(--color-error)">退出系统后台</h4>
+          <p class="settings-card__desc">退出当前的管理员身份，清空安全会话缓存并锁屏管理面板。</p>
+          <button class="btn btn-outline btn-sm btn-block" id="btn-logout" style="color:var(--color-error); border-color:var(--color-error)">安全退出登录</button>
         </div>
       </div>
     `;
@@ -900,17 +1024,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    document.getElementById('btn-reset').addEventListener('click', () => {
-      if (confirm('警告：此操作将清空所有已上传的产品、公司介绍、新闻配置，并恢复至默认出厂状态。确定重置吗？')) {
-        window.CMS.reset();
-        window.showToast('网站数据已重置为出厂状态，正在重新加载...');
-        setTimeout(() => location.reload(), 1000);
-      }
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      localStorage.removeItem('chengyuan_admin_token');
+      window.showToast('您已成功安全退出');
+      setTimeout(() => location.reload(), 800);
     });
   }
-
-  // ============================================================
-  //  Init Admin View
-  // ============================================================
-  renderSection('dashboard');
 });

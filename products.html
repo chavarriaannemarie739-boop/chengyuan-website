@@ -95,8 +95,10 @@
     // ============================================================
     //  Products Page Logic
     // ============================================================
-    (function () {
+    (async function () {
       'use strict';
+
+      await CMS.loadData();
 
       const data       = CMS.getData();
       const products   = data.products   || [];

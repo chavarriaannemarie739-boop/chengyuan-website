@@ -10,6 +10,27 @@
   <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
+  <!-- Login Overlay -->
+  <div class="login-overlay" id="login-overlay">
+    <div class="login-box">
+      <div class="login-box__header">
+        <h2>诚远汽车零部件</h2>
+        <p>官方网站管理后台登录</p>
+      </div>
+      <form class="login-box__form" id="login-form">
+        <div class="form-group">
+          <label class="form-label">管理员账号</label>
+          <input type="text" class="form-input" id="login-username" value="admin" required placeholder="请输入账号">
+        </div>
+        <div class="form-group">
+          <label class="form-label">安全密码</label>
+          <input type="password" class="form-input" id="login-password" required placeholder="请输入密码">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top:20px;">安全登录</button>
+      </form>
+    </div>
+  </div>
+
   <div class="admin-layout">
     <!-- Sidebar -->
     <aside class="sidebar">
@@ -48,6 +69,10 @@
         <a href="#" class="sidebar__nav-item" data-section="milestones">
           <span class="sidebar__nav-icon">⏳</span>
           <span class="sidebar__nav-label">发展历程</span>
+        </a>
+        <a href="#" class="sidebar__nav-item" data-section="messages">
+          <span class="sidebar__nav-icon">💬</span>
+          <span class="sidebar__nav-label">客户留言</span>
         </a>
         <a href="#" class="sidebar__nav-item" data-section="settings">
           <span class="sidebar__nav-icon">⚙️</span>
