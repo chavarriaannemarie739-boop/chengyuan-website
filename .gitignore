@@ -1,0 +1,13 @@
+# macOS system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project config files (we will create config.php later)
+config.php
+data/cms_data.json
+uploads/

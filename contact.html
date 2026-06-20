@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="联系聊城市茌平区诚远汽车零部件制造有限公司，获取产品报价、技术支持和商务合作信息。电话咨询、在线留言，我们竭诚为您服务。">
+  <meta name="keywords" content="诚远汽车零部件,联系我们,汽车散热器厂家,散热器报价,聊城汽车零部件">
+  <meta name="author" content="诚远汽车零部件">
+  <meta property="og:title" content="联系我们 - 诚远汽车零部件">
+  <meta property="og:description" content="期待您的来电咨询，我们将竭诚为您服务。电话、邮件、在线留言多种方式联系我们。">
+  <meta property="og:type" content="website">
+  <title>联系我们 - 诚远汽车零部件</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ===== Page Hero (.hero--small) ===== -->
+  <section class="hero hero--small">
+    <div class="hero__bg-pattern"></div>
+    <div class="hero__gradient-orb hero__gradient-orb--1"></div>
+    <div class="hero__gradient-orb hero__gradient-orb--2"></div>
+    <div class="container hero__content" style="padding-top: 0;">
+      <nav class="breadcrumb" aria-label="面包屑导航">
+        <a href="index.html">首页</a>
+        <span class="separator">/</span>
+        <span class="current">联系我们</span>
+      </nav>
+      <h1 class="hero__title" style="animation-delay:0.1s;">联系我们</h1>
+      <p class="hero__desc" style="animation-delay:0.2s;">期待您的来电咨询，我们将竭诚为您服务</p>
+    </div>
+  </section>
+
+  <!-- ===== Contact Section ===== -->
+  <section class="section">
+    <div class="container">
+      <div class="contact-grid">
+
+        <!-- Left Column: Contact Info Cards -->
+        <div class="contact-info-list" id="contact-info">
+          <div class="section-header reveal">
+            <span class="section-label">Contact Info</span>
+            <h2 class="section-title">联系方式</h2>
+            <p class="section-subtitle">多种渠道，随时为您提供专业服务</p>
+          </div>
+
+          <!-- Phone Card -->
+          <div class="contact-info-card reveal reveal--delay-1" id="card-phone">
+            <div class="contact-info-card__icon">📞</div>
+            <div>
+              <div class="contact-info-card__title">联系电话</div>
+              <div class="contact-info-card__text" id="info-phone"></div>
+            </div>
+          </div>
+
+          <!-- Email Card -->
+          <div class="contact-info-card reveal reveal--delay-2" id="card-email" style="margin-top: var(--space-4);">
+            <div class="contact-info-card__icon">✉️</div>
+            <div>
+              <div class="contact-info-card__title">电子邮箱</div>
+              <div class="contact-info-card__text" id="info-email"></div>
+            </div>
+          </div>
+
+          <!-- Address Card -->
+          <div class="contact-info-card reveal reveal--delay-3" id="card-address" style="margin-top: var(--space-4);">
+            <div class="contact-info-card__icon">📍</div>
+            <div>
+              <div class="contact-info-card__title">公司地址</div>
+              <div class="contact-info-card__text" id="info-address"></div>
+            </div>
+          </div>
+
+          <!-- WeChat / Business Hours Card -->
+          <div class="contact-info-card reveal reveal--delay-4" id="card-hours" style="margin-top: var(--space-4);">
+            <div class="contact-info-card__icon">🕐</div>
+            <div>
+              <div class="contact-info-card__title">营业时间 / 微信</div>
+              <div class="contact-info-card__text" id="info-hours"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Contact Form -->
+        <div class="contact-form-wrapper reveal">
+          <div style="background: var(--color-white); border-radius: var(--radius-xl); padding: var(--space-8); box-shadow: var(--shadow-lg); border: 1px solid var(--color-gray-200);">
+            <h3 style="font-size: var(--font-size-2xl); font-weight: 700; color: var(--color-gray-900); margin-bottom: var(--space-2);">在线留言</h3>
+            <p style="font-size: var(--font-size-sm); color: var(--color-gray-500); margin-bottom: var(--space-8);">请填写以下信息，我们将尽快与您取得联系</p>
+
+            <form id="contact-form" novalidate>
+              <!-- 姓名 -->
+              <div class="form-group">
+                <label class="form-label" for="name">姓名 <span style="color: var(--color-error);">*</span></label>
+                <input type="text" id="name" name="name" class="form-input" placeholder="请输入您的姓名" required>
+              </div>
+
+              <!-- 电话 -->
+              <div class="form-group">
+                <label class="form-label" for="phone">电话 <span style="color: var(--color-error);">*</span></label>
+                <input type="tel" id="phone" name="phone" class="form-input" placeholder="请输入您的联系电话" required>
+              </div>
+
+              <!-- 邮箱 -->
+              <div class="form-group">
+                <label class="form-label" for="email">邮箱</label>
+                <input type="email" id="email" name="email" class="form-input" placeholder="请输入您的邮箱地址">
+              </div>
+
+              <!-- 主题 -->
+              <div class="form-group">
+                <label class="form-label" for="subject">主题 <span style="color: var(--color-error);">*</span></label>
+                <select id="subject" name="subject" class="form-input" required>
+                  <option value="" disabled selected>请选择咨询主题</option>
+                  <option value="产品咨询">产品咨询</option>
+                  <option value="技术支持">技术支持</option>
+                  <option value="商务合作">商务合作</option>
+                  <option value="其他">其他</option>
+                </select>
+              </div>
+
+              <!-- 留言内容 -->
+              <div class="form-group">
+                <label class="form-label" for="message">留言内容 <span style="color: var(--color-error);">*</span></label>
+                <textarea id="message" name="message" class="form-input" rows="5" placeholder="请输入您的留言内容..." required></textarea>
+              </div>
+
+              <!-- Submit -->
+              <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: var(--space-4);">
+                提交留言
+              </button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Map Section ===== -->
+  <section class="section section--gray">
+    <div class="container">
+      <div class="section-header text-center reveal">
+        <span class="section-label">Location</span>
+        <h2 class="section-title">公司位置</h2>
+        <p class="section-subtitle" style="margin: 0 auto;" id="map-address-text"></p>
+      </div>
+      <div class="map-placeholder reveal" id="map-container">
+        <div style="text-align: center;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 12px; opacity: 0.5;">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <div>地图加载中... (可在此处嵌入百度地图/高德地图)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Scripts ===== -->
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    // ---- Populate contact info from CMS ----
+    (function populateContactInfo() {
+      const company = CMS.get('company');
+      if (!company) return;
+
+      // Phone card
+      const phoneEl = document.getElementById('info-phone');
+      if (phoneEl) {
+        phoneEl.innerHTML =
+          '座机：' + company.phone + '<br>' +
+          '手机：' + company.mobile;
+      }
+
+      // Email card
+      const emailEl = document.getElementById('info-email');
+      if (emailEl) {
+        emailEl.innerHTML =
+          '<a href="mailto:' + company.email + '" style="color: var(--color-accent); text-decoration: none;">' +
+          company.email + '</a>';
+      }
+
+      // Address card
+      const addressEl = document.getElementById('info-address');
+      if (addressEl) {
+        addressEl.textContent = company.addressDetail || company.address;
+      }
+
+      // Hours / WeChat card
+      const hoursEl = document.getElementById('info-hours');
+      if (hoursEl) {
+        let hoursHTML = '周一至周六：08:00 - 17:30<br>周日：休息';
+        if (company.wechat) {
+          hoursHTML += '<br>微信：' + company.wechat;
+        } else {
+          hoursHTML += '<br>微信：请致电获取';
+        }
+        hoursEl.innerHTML = hoursHTML;
+      }
+
+      // Map address text
+      const mapText = document.getElementById('map-address-text');
+      if (mapText) {
+        mapText.textContent = company.addressDetail || company.address;
+      }
+    })();
+
+    // ---- Form validation & submission ----
+    (function initContactForm() {
+      const form = document.getElementById('contact-form');
+      if (!form) return;
+
+      // Style invalid fields on blur
+      form.querySelectorAll('.form-input[required]').forEach(function(input) {
+        input.addEventListener('blur', function() {
+          if (!this.value.trim()) {
+            this.style.borderColor = 'var(--color-error)';
+          } else {
+            this.style.borderColor = '';
+          }
+        });
+        input.addEventListener('input', function() {
+          if (this.value.trim()) {
+            this.style.borderColor = '';
+          }
+        });
+      });
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Validate required fields
+        var name = form.querySelector('#name');
+        var phone = form.querySelector('#phone');
+        var subject = form.querySelector('#subject');
+        var message = form.querySelector('#message');
+
+        var hasError = false;
+        var requiredFields = [
+          { el: name, label: '姓名' },
+          { el: phone, label: '电话' },
+          { el: subject, label: '主题' },
+          { el: message, label: '留言内容' }
+        ];
+
+        requiredFields.forEach(function(field) {
+          if (!field.el.value.trim()) {
+            field.el.style.borderColor = 'var(--color-error)';
+            hasError = true;
+          } else {
+            field.el.style.borderColor = '';
+          }
+        });
+
+        if (hasError) {
+          showToast('请填写所有必填项', 'error');
+          return;
+        }
+
+        // Validate email format if provided
+        var emailField = form.querySelector('#email');
+        if (emailField.value.trim()) {
+          var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailPattern.test(emailField.value.trim())) {
+            emailField.style.borderColor = 'var(--color-error)';
+            showToast('请输入正确的邮箱格式', 'error');
+            return;
+          }
+        }
+
+        // Validate phone format (Chinese phone)
+        var phonePattern = /^[\d\-+()（）\s]{7,20}$/;
+        if (!phonePattern.test(phone.value.trim())) {
+          phone.style.borderColor = 'var(--color-error)';
+          showToast('请输入正确的电话号码', 'error');
+          return;
+        }
+
+        // Simulate submission (replace with real API call in production)
+        var submitBtn = form.querySelector('button[type="submit"]');
+        var originalText = submitBtn.textContent;
+        submitBtn.textContent = '提交中...';
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.7';
+
+        setTimeout(function() {
+          showToast('留言提交成功！我们将尽快与您联系。', 'success');
+          form.reset();
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = '';
+
+          // Reset all border colors
+          form.querySelectorAll('.form-input').forEach(function(input) {
+            input.style.borderColor = '';
+          });
+        }, 1200);
+      });
+    })();
+
+    // ---- Initialize shared page components ----
+    initPage();
+  </script>
+
+</body>
+</html>

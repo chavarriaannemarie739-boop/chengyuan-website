@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>诚远汽车零部件 — 网站后台管理系统</title>
+  <!-- Main Styles for design system variables -->
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Admin Styles -->
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar__brand">
+        <div class="sidebar__logo">诚</div>
+        <div class="sidebar__brand-text">
+          <span class="sidebar__brand-name">诚远汽车零部件</span>
+          <span class="sidebar__brand-sub">后台管理系统</span>
+        </div>
+      </div>
+      <nav class="sidebar__nav">
+        <a href="#" class="sidebar__nav-item sidebar__nav-item--active" data-section="dashboard">
+          <span class="sidebar__nav-icon">📊</span>
+          <span class="sidebar__nav-label">系统概览</span>
+        </a>
+        <a href="#" class="sidebar__nav-item" data-section="company">
+          <span class="sidebar__nav-icon">🏢</span>
+          <span class="sidebar__nav-label">企业信息</span>
+        </a>
+        <a href="#" class="sidebar__nav-item" data-section="products">
+          <span class="sidebar__nav-icon">🔧</span>
+          <span class="sidebar__nav-label">产品管理</span>
+        </a>
+        <a href="#" class="sidebar__nav-item" data-section="news">
+          <span class="sidebar__nav-icon">📰</span>
+          <span class="sidebar__nav-label">新闻管理</span>
+        </a>
+        <a href="#" class="sidebar__nav-item" data-section="advantages">
+          <span class="sidebar__nav-icon">🎯</span>
+          <span class="sidebar__nav-label">核心优势</span>
+        </a>
+        <a href="#" class="sidebar__nav-item" data-section="stats">
+          <span class="sidebar__nav-icon">📈</span>
+          <span class="sidebar__nav-label">数据统计</span>
+        </a>
+        <a href="#" class="sidebar__nav-item" data-section="milestones">
+          <span class="sidebar__nav-icon">⏳</span>
+          <span class="sidebar__nav-label">发展历程</span>
+        </a>
+        <a href="#" class="sidebar__nav-item" data-section="settings">
+          <span class="sidebar__nav-icon">⚙️</span>
+          <span class="sidebar__nav-label">系统设置</span>
+        </a>
+      </nav>
+      <div class="sidebar__footer">
+        <a href="index.html" target="_blank" class="btn btn-outline btn-sm btn-block">
+          <span>查看前台网站</span>
+          <span>↗</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Admin Header -->
+      <header class="admin-header">
+        <div class="admin-header__title" id="page-title">系统概览</div>
+        <div class="admin-header__user">
+          <span class="admin-header__avatar">👤</span>
+          <span class="admin-header__username">管理员</span>
+        </div>
+      </header>
+
+      <!-- Admin View Area -->
+      <div class="admin-body" id="admin-view">
+        <!-- Views will be dynamically loaded here by admin.js -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal for Add/Edit -->
+  <div class="admin-modal" id="admin-modal">
+    <div class="admin-modal__content">
+      <div class="admin-modal__header">
+        <h3 class="admin-modal__title" id="modal-title">编辑项目</h3>
+        <button class="admin-modal__close" id="modal-close">×</button>
+      </div>
+      <form class="admin-modal__body" id="modal-form">
+        <!-- Form elements dynamically injected -->
+      </form>
+      <div class="admin-modal__footer">
+        <button type="button" class="btn btn-outline btn-sm" id="modal-cancel">取消</button>
+        <button type="button" class="btn btn-primary btn-sm" id="modal-submit">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CMS Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
